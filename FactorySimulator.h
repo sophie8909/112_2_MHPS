@@ -5,6 +5,7 @@
 class FactorySimulator
 {
 public:
+    FactorySimulator() = default;
     FactorySimulator(int machines, const std::vector<std::vector<int>>& times) 
         : numMachines(machines), processingTimes(times) {}
     int calculateMakespan(const std::vector<int>& jobSequence);

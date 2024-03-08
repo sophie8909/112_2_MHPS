@@ -4,16 +4,12 @@
 #include <string>
 #include "FactorySimulator.h"
 
-int main() {
-    // FactorySimulator 
-    // Read the data from the file
-    std::ifstream inFile("data/tai20_5_1.txt");
+void initializeSimulator(std::string fileName, FactorySimulator& simulator, int& numJobs, int& numMachines) {
+    std::ifstream inFile("data/" + fileName);
     if (!inFile) {
         std::cerr << "Unable to open input file" << std::endl;
-        return 1; // Exit if file not found
+        return; // Exit if file not found
     }
-    int numJobs;
-    int numMachines;
     std::string str;
     inFile >> numJobs >> numMachines >> str;  
     std::vector<std::vector<int>> processingTimes(numMachines, std::vector<int>(numJobs));
@@ -24,20 +20,27 @@ int main() {
     }
     inFile.close();
 
-// for (int i = 0; i < numMachines; i++) {
-//         for (int j = 0; j < numJobs; j++) {
-//             std::cout << processingTimes[i][j] << " ";
-//         }
-//         std::cout << std::endl;
-//     }
+    simulator = FactorySimulator(numMachines, processingTimes);
+}
 
-    // Initialize the simulator
-    FactorySimulator simulator(numMachines, processingTimes);
-
-    std::vector<int> jobSequence = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
-                                    11, 12, 13, 14, 15, 16, 17, 18, 19};
-    std::cout << "Makespan: " << simulator.calculateMakespan(jobSequence) << std::endl;
+int main() {
+    std::vector<std::string> fileNames = {"tai20_5_1.txt", "tai20_10_1.txt", "tai20_20_1.txt", "tai50_5_1.txt", "tai50_10_1.txt", "tai50_20_1.txt", "tai100_5_1.txt", "tai100_10_1.txt", "tai100_20_1.txt"};
+    int numJobs;
+    int numMachines;
+    FactorySimulator simulator;
     
+    for (auto fileName : fileNames) {
+        initializeSimulator(fileName, simulator, numJobs, numMachines);
+
+        std::vector<int> jobSequence(numJobs);
+        
+
+        for (int i = 0; i < numJobs; i++) {
+            jobSequence[i] = i;
+        }
+        std::cout << "Makespan: " << simulator.calculateMakespan(jobSequence) << std::endl;
+
+    }
 
     return 0;
 }
