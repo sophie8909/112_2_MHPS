@@ -25,7 +25,7 @@ FactorySimulator::FactorySimulator(std::string fileName) {
 }
 
 int FactorySimulator::calculateMakespan(const std::vector<int>& jobSequence)
-
+{
     std::vector<int> machineEndTime(numMachines, 0); // Tracks the end time for each machine
     std::vector<int> jobEndTime(jobSequence.size(), 0); // Tracks the end time for each job
 
@@ -52,7 +52,7 @@ int FactorySimulator::calculateMakespan(const std::vector<int>& jobSequence)
 }
 
 void JobSequence::getAllNeighborJobSequences(std::vector<jobSequence>& neighbors) {
-    neighbours.clear();
+    neighbors.clear();
     for (int i = 0; i < numJobs; i++) {
         for (int j = i + 1; j < numJobs; j++) {
             jobSequence neighbour = *this;
