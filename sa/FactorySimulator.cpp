@@ -27,5 +27,5 @@ int FactorySimulator::calculateMakespan(const std::vector<int> &jobSequence)
     }
 
     // The makespan is the end time of the last job
-    return jobEndTime[jobSequence.size() - 1];
+    return jobEndTime[jobSequence[jobSequence.size() - 1]];
 }

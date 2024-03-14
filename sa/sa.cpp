@@ -158,7 +158,7 @@ int main()
         }
         outFile.close();
 
-        printVector(curSolution);
+        // printVector(curSolution);
         sum += curMakespan;
         if (minSpan > curMakespan)
         {
