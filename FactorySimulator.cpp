@@ -2,8 +2,30 @@
 #include <vector>
 #include "FactorySimulator.h"
 
-FactorySimulator::calculateMakespan(const std::vector<int>& jobSequence)
-{
+FactorySimulator::FactorySimulator(std::string fileName) {
+    int numJobs;
+    int numMachines;
+
+    std::ifstream inFile("data/" + fileName);
+    if (!inFile) {
+        std::cerr << "Unable to open input file" << std::endl;
+        return; // Exit if file not found
+    }
+    std::string str;
+    inFile >> numJobs >> numMachines >> str;  
+    std::vector<std::vector<int>> processingTimes(numMachines, std::vector<int>(numJobs));
+    for (int i = 0; i < numMachines; i++) {
+        for (int j = 0; j < numJobs; j++) {
+            inFile >> processingTimes[i][j];
+        }
+    }
+    inFile.close();
+
+    simulator = FactorySimulator(numMachines, processingTimes);
+}
+
+int FactorySimulator::calculateMakespan(const std::vector<int>& jobSequence)
+
     std::vector<int> machineEndTime(numMachines, 0); // Tracks the end time for each machine
     std::vector<int> jobEndTime(jobSequence.size(), 0); // Tracks the end time for each job
 
@@ -24,6 +46,18 @@ FactorySimulator::calculateMakespan(const std::vector<int>& jobSequence)
         jobEndTime[jobId] = endTime;
     }
 
-    // The makespan is the end time of the last job
-    return jobEndTime[jobSequence.size() - 1];
+    // The makespan is the end time of the last job in jobSequence
+    int lastJobID = jobSequence[jobSequence.size() - 1];
+    return jobEndTime[lastJobID];
+}
+
+void JobSequence::getAllNeighborJobSequences(std::vector<jobSequence>& neighbors) {
+    neighbours.clear();
+    for (int i = 0; i < numJobs; i++) {
+        for (int j = i + 1; j < numJobs; j++) {
+            jobSequence neighbour = *this;
+            std::swap(neighbour.jobSequence[i], neighbour.jobSequence[j]);
+            neighbors.push_back(neighbour);
+        }
+    }
 }
