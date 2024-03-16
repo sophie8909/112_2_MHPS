@@ -60,11 +60,11 @@ void TabuSearch::runTabuSearch(){
                     }              
                 }
             }while (tabu);
-
+            tabuList.push_back(TabuItem(currentOrder,maxTabuTenure));
+            updateTabuList();
         }
         currentOrder = bestOrder;
-        tabuList.push_back(TabuItem(currentOrder,maxTabuTenure));
-        updateTabuList();
+        
         makespansHistory.push_back(LocalbestMakespan); 
         if(LocalbestMakespan < GlobalbestMakespan){
             GlobalbestMakespan = LocalbestMakespan;
