@@ -41,7 +41,7 @@ int main() {
         TabuSearch TS(&simulator); 
         TS.setProcessingTimes(processingTimes);
         TS.Setnumjobsize(numJobs);
-        TS.setIterations(5000);
+        TS.setIterations(1000);
         TS.setNeighborhoodSize(20);
         
 /*        for (int i = 0; i < numJobs; i++) {
