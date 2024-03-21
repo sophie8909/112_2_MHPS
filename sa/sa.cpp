@@ -85,11 +85,11 @@ int main()
     string inputFile = "data/tai20_5_1.txt";
     string outputFolder = "result/20_5/";
     int maxIter = 10000;
-    int coolIter = 200;
-    int temp = 500;
-    int minTemp = 5;
+    int coolIter = 165;
     int jobNum;
     int machineNum;
+    double temp = 1000.0;
+    double minTemp = 3.0;
     double coolRate = 0.9;
 
     initSimulator(inputFile, simulator, jobNum, machineNum);
@@ -101,15 +101,17 @@ int main()
     ofstream outFile;
     string outputFileName;
 
+    srand((unsigned)time(NULL));
+
     for (int i = 0; i < 20; ++i)
     {
         int curTemp = temp;
-        srand(time(NULL));
 
         vector<int> curSolution = getInitSolution(jobNum);
         int curMakespan = simulator.calculateMakespan(curSolution);
+        int bestMakespan = curMakespan;
 
-        outputFileName = outputFolder + to_string(temp) + "_0." + to_string((int)(coolRate * 100)) + "_" + to_string(i) + ".txt";
+        outputFileName = outputFolder + to_string(i) + ".txt";
         outFile.open(outputFileName);
         if (!outFile.is_open())
         {
@@ -125,6 +127,11 @@ int main()
             vector<int> neighborhood = getNeighborhood(curSolution, jobNum);
             int neighborhoodMakespan = simulator.calculateMakespan(neighborhood);
 
+            if (neighborhoodMakespan < bestMakespan)
+            {
+                bestMakespan = neighborhoodMakespan;
+            }
+
             // check if is better
             if (neighborhoodMakespan <= curMakespan)
             {
@@ -134,7 +141,6 @@ int main()
             // else sa
             else
             {
-                srand(time(NULL));
                 double r = (double)rand() / RAND_MAX;
                 double accept = exp((double)(curMakespan - neighborhoodMakespan) / curTemp);
                 if (accept > r)
@@ -159,20 +165,20 @@ int main()
         outFile.close();
 
         // printVector(curSolution);
-        sum += curMakespan;
-        if (minSpan > curMakespan)
+        sum += bestMakespan;
+        if (minSpan > bestMakespan)
         {
-            minSpan = curMakespan;
+            minSpan = bestMakespan;
         }
-        if (maxSpan < curMakespan)
+        if (maxSpan < bestMakespan)
         {
-            maxSpan = curMakespan;
+            maxSpan = bestMakespan;
         }
     }
 
     average = sum / 20;
 
-    outputFileName = outputFolder + to_string(temp) + "_0." + to_string((int)(coolRate * 100)) + "_all.txt";
+    outputFileName = outputFolder + "all.txt";
     outFile.open(outputFileName);
     if (!outFile.is_open())
     {
