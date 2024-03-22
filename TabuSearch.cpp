@@ -64,7 +64,8 @@ void TabuSearch::runTabuSearch(){
             updateTabuList();
         }
         currentOrder = bestOrder;
-        
+//        tabuList.push_back(TabuItem(currentOrder,maxTabuTenure));
+//        updateTabuList();
         makespansHistory.push_back(LocalbestMakespan); 
         if(LocalbestMakespan < GlobalbestMakespan){
             GlobalbestMakespan = LocalbestMakespan;
@@ -72,10 +73,15 @@ void TabuSearch::runTabuSearch(){
         }else{
             changetenureflag +=1;
         }
-        if(changetenureflag >= 50){
+
+        if(changetenureflag >= 20){
+            maxTabuTenure = 7;
+        }else if(changetenureflag >= 30){
             maxTabuTenure = 10;
+        }else if(changetenureflag >= 50){
+            maxTabuTenure = 13;           
         }else{
-            maxTabuTenure = 5;
+            maxTabuTenure = 4;
         }
 
     }
@@ -96,12 +102,13 @@ void TabuSearch::permutationTS(std::vector<int>& tabuorder){
         
         jobIndex2 = distribution(generator);
     }
-    while(jobIndex1 < jobIndex2 || processingTimes[0][tabuorder[jobIndex1]] >= processingTimes[0][tabuorder[jobIndex2]]){
+
+/*    while(jobIndex1 < jobIndex2 || processingTimes[0][tabuorder[jobIndex1]] >= processingTimes[0][tabuorder[jobIndex2]]){
         if(processingTimes[0][tabuorder[jobIndex1]] >= processingTimes[0][tabuorder[jobIndex2]])
             break;
         jobIndex1 = distribution(generator);
         jobIndex2 = distribution(generator);
-    }
+    }*/
     
 
     swap(jobIndex1, jobIndex2, tabuorder);

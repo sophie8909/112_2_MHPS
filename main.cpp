@@ -27,7 +27,7 @@ void initializeSimulator(std::string fileName, FactorySimulator& simulator, int&
 }
 
 int main() {
-    std::vector<std::string> fileNames = {"tai20_5_1.txt"}; //, "tai20_10_1.txt", "tai20_20_1.txt", "tai50_5_1.txt", "tai50_10_1.txt", "tai50_20_1.txt", "tai100_5_1.txt", "tai100_10_1.txt", "tai100_20_1.txt"
+    std::vector<std::string> fileNames = { "tai20_5_1.txt"}; //, "tai20_10_1.txt", "tai20_20_1.txt", "tai50_5_1.txt", "tai50_10_1.txt", "tai50_20_1.txt", "tai100_5_1.txt", "tai100_10_1.txt", "tai100_20_1.txt"
     int numJobs;
     int numMachines;
     FactorySimulator simulator;
