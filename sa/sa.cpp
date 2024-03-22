@@ -99,7 +99,8 @@ int main()
 
         initSimulator(inputFile, simulator, jobNum, machineNum);
 
-        int sum = 0, average = 0;
+        int sum = 0;
+        double average = 0;
         int minSpan = 2147483647;
         int maxSpan = 0;
         double totalTime = 0.0;
@@ -187,7 +188,7 @@ int main()
 
         cout << "average running time: " << totalTime / 20.0 / CLOCKS_PER_SEC << "s" << endl;
 
-        average = sum / 20;
+        average = (double)sum / 20;
 
         outputFileName = outputFolder + "all.txt";
         outFile.open(outputFileName);
