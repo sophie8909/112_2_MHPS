@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/w96j0/OneDrive/桌面/112_2_MHPS/sa",
-      "program": "c:/Users/w96j0/OneDrive/桌面/112_2_MHPS/sa/build/Debug/outDebug",
+      "cwd": "c:/Users/w96j0/OneDrive/桌面/112_2_MHPS",
+      "program": "c:/Users/w96j0/OneDrive/桌面/112_2_MHPS/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
