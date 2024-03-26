@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "FactorySimulator.h"
 #include "TabuSearch.h"
+#include <chrono>
 
 void initializeSimulator(std::string fileName, FactorySimulator& simulator, int& numJobs, int& numMachines, std::vector<std::vector<int>>& processingTimes) {
     std::ifstream inFile("data/" + fileName);
@@ -27,7 +28,9 @@ void initializeSimulator(std::string fileName, FactorySimulator& simulator, int&
 }
 
 int main() {
-    std::vector<std::string> fileNames = { "tai20_5_1.txt"}; //, "tai20_10_1.txt", "tai20_20_1.txt", "tai50_5_1.txt", "tai50_10_1.txt", "tai50_20_1.txt", "tai100_5_1.txt", "tai100_10_1.txt", "tai100_20_1.txt"
+    
+
+    std::vector<std::string> fileNames = { "tai50_5_1.txt","tai50_10_1.txt","tai50_20_1.txt"}; //, "tai20_10_1.txt", "tai20_20_1.txt", "tai50_5_1.txt", "tai50_10_1.txt", "tai50_20_1.txt", "tai100_5_1.txt", "tai100_10_1.txt", "tai100_20_1.txt"
     int numJobs;
     int numMachines;
     FactorySimulator simulator;
@@ -35,14 +38,16 @@ int main() {
 
     
     for (auto fileName : fileNames) {
+        for(int i=0 ;i<3;i++){          //number of execution
+        auto start = std::chrono::high_resolution_clock::now();
         initializeSimulator(fileName, simulator, numJobs, numMachines,processingTimes);
         
         std::vector<int> jobSequence(numJobs);
         TabuSearch TS(&simulator); 
         TS.setProcessingTimes(processingTimes);
         TS.Setnumjobsize(numJobs);
-        TS.setIterations(1000);
-        TS.setNeighborhoodSize(20);
+        TS.setIterations(1000); //Iteration_number
+        TS.setNeighborhoodSize(20); //neighborhood
         
 /*        for (int i = 0; i < numJobs; i++) {
             jobSequence[i] = i;
@@ -53,19 +58,12 @@ int main() {
                 std::cout << jobSequence[i] << " ";
             }*/
         
-        TS.exportMakespansHistoryToFile("D:/history.txt");
-        
-      
-//        std::cout << "Makespan: " << simulator.calculateMakespan(jobSequence) << std::endl;
-       
- /*      do {
-            // 打印每個排列的 makespan
-            std::cout << "Makespan: " << simulator.calculateMakespan(jobSequence) << " Job Sequence: ";
-            for (int i = 0; i < numJobs; i++) {
-                std::cout << jobSequence[i] << " ";
-           }            
-        } while (std::next_permutation(jobSequence.begin(), jobSequence.end()));*/
+//        TS.exportMakespansHistoryToFile("D:/history.txt"); // makespan_log
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> duration = end - start;
+        std::cout << " Execution time: " << duration.count() << " seconds" ;
         
     }
-    
+    std::cout<<std::endl<<"-----------------";
+    }
 }
