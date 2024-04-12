@@ -1,7 +1,7 @@
 {
     "num_of_populations": 100,
     "crossover_method": "LOX",
-    "mutation_method": "mixed",
+    "mutation_method": "reverse",
     "MA_iterations": 1000,
     "probability_crossover": 0.8,
     "num_learner": 10,
