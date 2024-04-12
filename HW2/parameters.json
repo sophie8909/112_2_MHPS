@@ -1,6 +1,6 @@
 {
     "num_of_populations": 100,
-    "crossover_method": "LOX",
+    "crossover_method": "CX",
     "mutation_method": "reverse",
     "MA_iterations": 1000,
     "probability_crossover": 0.8,
