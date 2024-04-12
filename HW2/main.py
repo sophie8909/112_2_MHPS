@@ -2,16 +2,13 @@ import numpy as np
 import random
 import copy
 import json
+import time
 from Factory import Factory, JobSequence, Job
 from Mutation import Mutation
 from Crossover import CrossOver
 BEST_MAKESPAN = 2147483647
-BEST_SEQUENCE = []
-PARAMETERS = {}
-
-        
-
-
+# BEST_SEQUENCE = []
+PARAMETERS = {}    
 
 def GetNeighbors(current: JobSequence, num_of_neighbors):
     neighbors = []
@@ -31,7 +28,6 @@ def GetNeighbor(current: JobSequence):
     neighbor.sequence[i], neighbor.sequence[j] = current.sequence[j], current.sequence[i]
         
     return neighbor
-
 
 # IterativeImprovement
 def LocalSearch(s, local_search_generation_size, local_search_neighbors_size):
@@ -53,13 +49,13 @@ def LocalSearch(s, local_search_generation_size, local_search_neighbors_size):
 
 def Evaluate(jobSequence):
     global BEST_MAKESPAN
-    global BEST_SEQUENCE
+    # global BEST_SEQUENCE
     jobSequence.fitness = factory.calculateMakespan(jobSequence) 
     if jobSequence.fitness < BEST_MAKESPAN:
         BEST_MAKESPAN = jobSequence.fitness
-        BEST_SEQUENCE = []
-        for job in jobSequence.sequence:
-            BEST_SEQUENCE.append(job.id)
+        # BEST_SEQUENCE = []
+        # for job in jobSequence.sequence:
+        #     BEST_SEQUENCE.append(job.id)
     return jobSequence.fitness
 
 def SelectParents(populations: list[JobSequence], k: int):
@@ -124,29 +120,59 @@ if __name__ == "__main__":
     with open("parameters.json", "r") as f:
         PARAMETERS = json.load(f)
     
-
+    
     for i in range(9):
-        BEST_MAKESPAN = 2147483647
-        BEST_SEQUENCE = []
-        with open("data/tai"+dataName[i]+".txt", "r") as f:
-            allJobs = []
-            lines = f.readlines()
-            lines = lines[1:]
-            for j in range(len(lines)):
-                numbers = list(map(int, lines[j].split()))
-                
-                if j == 0:
+        of = open("TA0"+str(i)+"1_record.txt", "w+")
+        sum = 0.0
+        time_sum = 0.0
+        total_best = 2147483647
+        total_wrost = -1
+        result = []
+        for tries in range(20):
+            BEST_MAKESPAN = 2147483647
+            # BEST_SEQUENCE = []
+            with open("data/tai"+dataName[i]+".txt", "r") as f:
+                allJobs = []
+                lines = f.readlines()
+                lines = lines[1:]
+                for j in range(len(lines)):
+                    numbers = list(map(int, lines[j].split()))
+                    
+                    if j == 0:
+                        for k in range(len(numbers)):
+                            allJobs.append(Job(k))
+                    
                     for k in range(len(numbers)):
-                        allJobs.append(Job(k))
+                        allJobs[k].add(numbers[k])
+                factory = Factory(len(allJobs[0].processingTime))
                 
-                for k in range(len(numbers)):
-                    allJobs[k].add(numbers[k])
-            factory = Factory(len(allJobs[0].processingTime))
-            
-            # n: number of populations
-            MA(allJobs, PARAMETERS["num_of_populations"], PARAMETERS["MA_iterations"], PARAMETERS["probability_crossover"], PARAMETERS["num_learner"])
+                start_time = time.time()
+                # n: number of populations
+                MA(allJobs, PARAMETERS["num_of_populations"], PARAMETERS["MA_iterations"], PARAMETERS["probability_crossover"], PARAMETERS["num_learner"])
 
-            with open("TA0"+str(i)+"1.txt", "w+") as of:
-                for job in BEST_SEQUENCE:
-                    of.write(str(job) + " ")
-            print("TA0"+str(i)+"1.txt: ", BEST_MAKESPAN)
+                end_time = time.time()
+
+                time_sum += end_time - start_time
+
+                result.append(BEST_MAKESPAN)
+                sum += float(BEST_MAKESPAN)
+                if BEST_MAKESPAN < total_best:
+                    total_best = BEST_MAKESPAN
+                if total_wrost < BEST_MAKESPAN:
+                    total_wrost = BEST_MAKESPAN
+
+                of.write(str(BEST_MAKESPAN) + "\n")
+                print("TA0"+str(i)+"1_"+str(tries), BEST_MAKESPAN)
+        of.close()
+        average = sum / 20.0
+        sd = 0
+        for j in range(20):
+            sd += (float(result[j]) - average) ** 2
+        sd /= 20.0
+        sd = sd ** 0.5
+        with open("TA0"+str(i)+"1_conclusion.txt", "w+") as of:
+            of.write(f"best: {total_best}\n")
+            of.write(f"wrost: {total_wrost}\n")
+            of.write(f"average: {average}\n")
+            of.write(f"deviation: {sd}\n")
+            of.write(f"average rum time: {time_sum / 20.0}")

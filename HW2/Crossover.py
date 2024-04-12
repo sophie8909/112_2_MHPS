@@ -88,23 +88,42 @@ class CrossOver:
         return JobSequence(child1), JobSequence(child2)
     
     # cycle crossover
-    def CX(self, parent1: JobSequence, parent2: JobSequence):
-        # cycle crossover
-        # select a random point
-        changePoint = random.randint(0, parent1.num_of_jobs - 1)
-        child1 = copy.deepcopy(parent1)
-        child2 = copy.deepcopy(parent2)
-        changed = []
-        switch = True
-        while switch:
-            child1.sequence[changePoint], child2.sequence[changePoint] = child2.sequence[changePoint], child1.sequence[changePoint]
-            changed.append(changePoint)
-            nextNumber = child1.sequence[changePoint].id
-            for i in range(parent1.num_of_jobs):
-                if child1.sequence[i].id == nextNumber and i not in changed:
-                    changePoint = i
-                    break
-                switch = False
-        child1.print()
-        child2.print()
-        return child1, child2
+    # def CX(self, parent1: JobSequence, parent2: JobSequence):
+    #     # cycle crossover
+    #     # select a random point
+    #     changePoint = random.randint(0, parent1.num_of_jobs - 1)
+
+    #     print("parent 1: ", end = '')
+    #     parent1.print()
+    #     print("parent 2: ", end = '')
+    #     parent2.print()
+
+    #     child1 = copy.deepcopy(parent1)
+    #     child2 = copy.deepcopy(parent2)
+    #     changed = []
+    #     switch = True
+    #     while switch:
+    #         print("now change point: ", changePoint)
+
+    #         tmp = child1.sequence[changePoint]
+    #         child1.sequence[changePoint] = child2.sequence[changePoint]
+    #         child2.sequence[changePoint] = tmp
+            
+    #         changed.append(changePoint)
+
+    #         print("changed list: ", changed)
+    #         print("child 1: ", end = '')
+    #         child1.print()
+    #         print("child 2: ", end = '')
+    #         child2.print()
+
+    #         nextNumber = child1.sequence[changePoint].id
+
+    #         print("next number: ", nextNumber)
+    #         for i in range(parent1.num_of_jobs):
+    #             if child1.sequence[i].id == nextNumber and i not in changed:
+    #                 changePoint = i
+    #                 break
+    #             switch = False
+        
+    #     return child1, child2
