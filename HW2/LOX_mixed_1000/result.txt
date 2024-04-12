@@ -1,0 +1,9 @@
+TA001.txt:  1278
+TA011.txt:  1631
+TA021.txt:  2372
+TA031.txt:  2735
+TA041.txt:  3177
+TA051.txt:  4140
+TA061.txt:  5495
+TA071.txt:  6032
+TA081.txt:  6743
