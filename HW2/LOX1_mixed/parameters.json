@@ -1,8 +1,8 @@
 {
     "num_of_populations": 100,
-    "crossover_method": "LOX_2",
-    "mutation_method": "cut_insert",
-    "MA_iterations": 1000,
+    "crossover_method": "LOX_1",
+    "mutation_method": "mixed",
+    "MA_iterations": 100,
     "probability_crossover": 0.8,
     "num_learner": 10,
     "local_search_generation_size": 100,

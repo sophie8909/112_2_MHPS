@@ -1,0 +1,5 @@
+best: 2740
+wrost: 2756
+average: 2750.4
+deviation: 4.200000000000001
+average rum time: 13.394674718379974
