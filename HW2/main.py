@@ -30,7 +30,7 @@ def GetNeighbor(current: JobSequence):
     return neighbor
 
 # IterativeImprovement
-def LocalSearch(s, local_search_generation_size, local_search_neighbors_size):
+def LocalSearch(s, local_search_generation_size, local_search_neighbors_size, mode):
     Evaluate(s)
     neighbors = GetNeighbors(s, local_search_neighbors_size)
     improved = True
@@ -40,7 +40,12 @@ def LocalSearch(s, local_search_generation_size, local_search_neighbors_size):
         for neighbor in neighbors:
             Evaluate(neighbor)
             if neighbor.fitness < s.fitness:
-                s = neighbor
+                if mode == "Lamarckian":
+                    s = neighbor
+                elif mode == "Baldwinian":
+                    s.fitness = neighbor.fitness
+                else:
+                    print("Invalid mode in LocalSearch")
                 improved = True
                 break
         generation += 1
@@ -110,7 +115,7 @@ def MA(allJobs, num_of_populations, iteration, probability_crossover, num_learne
 
         for i in range(num_learner):
             s = SelectLearner(populations)
-            LocalSearch(s, PARAMETERS["local_search_generation_size"], PARAMETERS["local_search_neighbors_size"])
+            LocalSearch(s, PARAMETERS["local_search_generation_size"], PARAMETERS["local_search_neighbors_size"], PARAMETERS["local_search_mode"])
             
 
 if __name__ == "__main__":
