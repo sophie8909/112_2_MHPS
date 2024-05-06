@@ -29,7 +29,19 @@ class StringArtDrawer:
             self.nails.append((x, y, gray_value))
 
     def connect_nails(self, nail1, nail2): #nail1、nail2分別為兩釘子的x,y座標，將兩釘子連接成線
-        pass
+        cv2.line(image, nail1, nail2, (255, 255, 255), thickness=1)
+        length = np.linalg.norm(np.array(pin2) - np.array(pin1))
+        angle = np.arctan2(pin2[1] - pin1[1], pin2[0] - pin1[0])
+
+        delta_x = 0.5 * np.sin(angle + np.pi/2)
+        delta_y = 0.5 * np.cos(angle + np.pi/2)
+        start1 = (int(pin1[0] + delta_x), int(pin1[1] + delta_y))
+        end1 = (int(pin2[0] + delta_x), int(pin2[1] + delta_y))
+        start2 = (int(pin1[0] - delta_x), int(pin1[1] - delta_y))
+        end2 = (int(pin2[0] - delta_x), int(pin2[1] - delta_y))
+
+        cv2.line(image, start1, end1, (255, 255, 255), thickness=1)
+        cv2.line(image, start2, end2, (255, 255, 255), thickness=1)
 
     def tocircle(self, input_image):
         height, width = input_image.shape
