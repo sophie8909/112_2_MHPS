@@ -37,15 +37,15 @@ class Evaluate:
     
     def __dhash(self, img):
         # calculate the difference hash of the image
-        img = cv2.resize(img, (9, 8))
+        img = cv2.resize(img, (33, 32))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         diff = img[:, 1:] > img[:, :-1]
         return diff.flatten()
 
     def DHash(self, result_img):
         original_hash = self.__dhash(self.original_img)
-        print(original_hash)
+        # print(original_hash)
         result_hash = self.__dhash(result_img)
-        print(result_hash)
+        # print(result_hash)
         diff = np.sum(original_hash != result_hash)
         print(diff)
