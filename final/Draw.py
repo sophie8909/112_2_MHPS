@@ -10,20 +10,22 @@ class StringArtDrawer:
         self.num_nails = config_file["num_nails"]
         
     
-    def initialize_nails(self, image): #初始圖中的釘子
-        _, thresholded = cv2.threshold(image, 240, 255, cv2.THRESH_BINARY)
-        contours, _ = cv2.findContours(thresholded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    def initialize_nails(self): #初始圖中的釘子
+        image = self.image
+        height, width = image.shape[:2]
+        center = (width // 2, height // 2)  
+        radius = min(width, height) // 2
+        angles = np.linspace(0, 2 * np.pi, self.num_nails, endpoint=False)
 
-        circle_contour = contours[0]  # 假設只有一個圓形
-        points = np.linspace(0, 2*np.pi, self.num_nails, endpoint=False)
+        for angle in angles:
+            x = int(center[0] + radius * np.cos(angle))
+            y = int(center[1] + radius * np.sin(angle))
+            if x >= 0 and x < image.shape[1] and y >= 0 and y < image.shape[0]:
+                gray_value = image[y, x]
 
-        for i in range(self.nums_nails):
-            angle = points[i]
-            x = int(circle_contour[0][0][0] + 0.9 * np.cos(angle))
-            y = int(circle_contour[0][0][0] + 0.9 * np.sin(angle))
-
-            gray_value = image[y, x]
-            self.nails.append((x, y, gray_value))
+                self.nails.append((x, y, gray_value))
+            else:
+                print("座標超過圖範圍")
 
     def connect_nails(self, nail1, nail2): #nail1、nail2分別為兩釘子的x,y座標，將兩釘子連接成線
         pass
