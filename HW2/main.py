@@ -120,6 +120,7 @@ def MA(allJobs, num_of_populations, iteration, probability_crossover, num_learne
 
 if __name__ == "__main__":
     dataName = ["20_5_1", "20_10_1", "20_20_1", "50_5_1", "50_10_1", "50_20_1", "100_5_1", "100_10_1", "100_20_1"]
+    
     # read parameters from json file
     PARAMETERS = {}
     with open("parameters.json", "r") as f:
