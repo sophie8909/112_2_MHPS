@@ -6,7 +6,7 @@ import numpy as np
 class StringArtDrawer:
     def __init__(self, input_image):
         self.nails = [] #儲存各個釘子的x,y座標及灰階值，如[(100,200,150)]，第一個釘子的xy座標為(100,200)，其灰階值為150
-        self.tocircle(input_image)
+        self.image = self.tocircle(input_image)
         
     def initialize_nails(self): #初始圖中的釘子
         pass
