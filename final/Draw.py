@@ -4,10 +4,11 @@ import numpy as np
 
 # draw the result of the string art
 class StringArtDrawer:
-    def __init__(self, input_image):
+    def __init__(self, input_image, config_file = "Draw_config.json"):
         self.nails = [] #儲存各個釘子的x,y座標及灰階值，如[(100,200,150)]，第一個釘子的xy座標為(100,200)，其灰階值為150
         self.image = self.tocircle(input_image)
-        self.num_nails = 288 #先寫在這，之後要放參數檔中
+        self.num_nails = config_file["num_nails"]
+        
     
     def initialize_nails(self, image): #初始圖中的釘子
         _, thresholded = cv2.threshold(image, 240, 255, cv2.THRESH_BINARY)
