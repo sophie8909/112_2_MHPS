@@ -33,4 +33,5 @@ class StringArtDrawer:
         output_image = np.zeros((height, width, 3), dtype=np.uint8) #創建一個空白的圓形圖片
         cv2.circle(output_image, (width // 2, height // 2), radius, (255, 255, 255), -1)
         output_image = cv2.bitwise_and(input_image, output_image)
+        output_image = cv2.cvtColor(output_image, cv2.COLOR_BGR2GRAY) #轉灰階圖
         return output_image
