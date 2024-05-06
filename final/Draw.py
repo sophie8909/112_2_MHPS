@@ -14,18 +14,19 @@ class StringArtDrawer:
         image = self.image
         height, width = image.shape[:2]
         center = (width // 2, height // 2)  
-        radius = min(width, height) // 2
+        radius = min(width, height) // 2 - 1
         angles = np.linspace(0, 2 * np.pi, self.num_nails, endpoint=False)
 
         for angle in angles:
             x = int(center[0] + radius * np.cos(angle))
             y = int(center[1] + radius * np.sin(angle))
-            if x >= 0 and x < image.shape[1] and y >= 0 and y < image.shape[0]:
-                gray_value = image[y, x]
+            
+            x = max(0, min(x, width - 1))
+            y = max(0, min(y, height - 1))
+            
+            gray_value = image[y, x]
 
-                self.nails.append((x, y, gray_value))
-            else:
-                print("座標超過圖範圍")
+            self.nails.append((x, y, gray_value))
 
     def connect_nails(self, nail1, nail2): #nail1、nail2分別為兩釘子的x,y座標，將兩釘子連接成線
         pass
