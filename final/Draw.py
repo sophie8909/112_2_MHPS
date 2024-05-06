@@ -36,3 +36,7 @@ class StringArtDrawer:
         output_image = cv2.bitwise_and(input_image, output_image)
         output_image = cv2.cvtColor(output_image, cv2.COLOR_BGR2GRAY) #轉灰階圖
         return output_image
+
+    # decode the population to np.ndarray
+    def Decode(self, population):
+        pass
