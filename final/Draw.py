@@ -12,3 +12,11 @@ class StringArtDrawer:
 
     def connect_nails(self, nail1, nail2): #nail1、nail2分別為兩釘子的x,y座標，將兩釘子連接成線
         pass
+
+    def tocircle(self, input_image):
+        height, width = input_image.shape
+        radius = width // 2
+        output_image = np.zeros((height, width, 3), dtype=np.uint8) #創建一個空白的圓形圖片
+        cv2.circle(output_image, (width // 2, height // 2), radius, (255, 255, 255), -1)
+        output_image = cv2.bitwise_and(input_image, output_image)
+        return output_image
