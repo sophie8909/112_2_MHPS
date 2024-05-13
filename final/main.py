@@ -8,7 +8,7 @@ import random
 def generateInitPopulation(drawer):
     nails = drawer.nails
     weights = [nail[2] for nail in nails]
-    max_weight = max(weights)
+    max_weight = sum(weights)
     normalized_weights = [weight / max_weight for weight in weights]
     random_length = random.randint(2000, 5000)
     chromosome = []
