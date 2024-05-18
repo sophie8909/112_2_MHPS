@@ -87,13 +87,40 @@ def nonDominatedSorting(allPopulation):
 
     return front
 
-    
+def CalculateCrowdingDistance(front:list):
+    frontLength = len(front)
+    for i in front:
+        i.crowdDis = 0.0
+    front.sort(key = lambda StringArt: StringArt.value)
+    front[0].crowDis = front[frontLength - 1].crowDis = 999999999999
 
-def CalculateCrowdingDistance(front, chromsObjRecord):
-    pass
+    for i in range(1, frontLength - 1):
+        # value dis
+        front[i].crowDis += float(front[i + 1].value - front[i - 1].value) / (front[frontLength - 1].value - front[0].value)
+        # num dis
+        maxNum = max([m.lineNum for m in front])
+        minNum = min([m.lineNum for m in front])
+        front[i].crowDis += float(abs(front[i + 1].lineNum - front[i - 1].lineNum)) / (maxNum - minNum)
 
-def selection(populationSize, front):
-    pass
+def selection(populationSize:int, front:list):
+    N = 0
+    nextPopulation = []
+    while N < populationSize:
+        for i in range(len(front)):
+            N = N + len(front[i])
+            if N > populationSize:
+                CalculateCrowdingDistance(front[i])
+                front.sort(key = lambda StringArt: StringArt.crowDis)
+                front.reverse()
+                for j in front:
+                    if len(nextPopulation) == populationSize:
+                        break                
+                    nextPopulation.append(j)              
+                break
+            else:
+                nextPopulation.extend(front[i])
+
+    return nextPopulation
 
 def initPopulation(populationSize:int, initMethod:str):
     if initMethod == "random":
@@ -108,10 +135,14 @@ def initPopulation(populationSize:int, initMethod:str):
 def crossover(parent1:StringArt, parent2:StringArt, crossoverRate:float):
     oneUnique = parent1.lineSet - parent2.lineSet
     twoUnique = parent2.lineSet - parent1.lineSet
-    crossNum = int(float(min(len(oneUnique) + len(twoUnique))) * crossoverRate)
 
-    oneCross = random.sample(parent1.lineSet, crossNum)
-    twoCross = random.sample(parent2.lineSet, crossNum)
+    crossNum = int(float(min(len(oneUnique), len(twoUnique))) * crossoverRate)
+
+    oneCross = set()
+    twoCross = set()
+    for i in range(crossNum):
+        oneCross.add(oneUnique.pop())
+        twoCross.add(twoUnique.pop())
 
     for i in range(crossNum):
         oneToTwo = oneCross.pop()
@@ -129,6 +160,7 @@ def main():
 
     for experientTimes in range(1):
 
+        start = time.time()
         curPopulation = initPopulation(PARAMETERS["num_of_populations"], PARAMETERS["init_method"])
         bestList = []
 
@@ -168,8 +200,18 @@ def main():
                 bestList = copy.deepcopy(nextPopulation)
             else:
                 totalList = copy.deepcopy(nextPopulation) + copy.deepcopy(bestList)
+                for i in totalList:
+                    i.np = 0
+                    i.sp = []
+                    i.rank = -1 
                 nowBestFront = nonDominatedSorting(totalList)
                 bestList = selection(PARAMETERS["num_of_populations"], nowBestFront)
+            
+            curPopulation = nextPopulation
+
+        end = time.time()
+
+        print("experient time: ", end-start)
                 
 
 if __name__ == "__main__":

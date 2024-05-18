@@ -32,3 +32,4 @@ class Evaluate:
         # print(result_hash)
         diff = np.sum(original_hash != result_hash)
         print(diff)
+        return diff
