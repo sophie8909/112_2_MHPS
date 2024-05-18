@@ -6,6 +6,7 @@ import time
 import cv2
 from Evaluate import Evaluate
 PARAMETERS = {}
+Eva = Evaluate(original_img = "test/photo.png")
 
 class StringArt():
     def __init__(self):
@@ -27,7 +28,7 @@ class StringArt():
         self.evaluate()
 
     def evaluate(self):
-        self.value = Evaluate(self.lineSet)
+        self.value = Eva(self.lineSet)
 
     def mutation(self):
         decide = random.random()
@@ -61,14 +62,15 @@ class StringArt():
                         self.lineSet.add((a, b))
                         break
 
-def nonDominatedSorting(allPopulation):
+def nonDominatedSorting(allPopulation:list):
     front = []
 
     for i in allPopulation:
         for j in allPopulation:
-            if i.lineNum < j.lineNum and i.value < j.value:
-                i.sp.append(j)
-                j.np += 1
+            if i != j:
+                if i.lineNum < j.lineNum and i.value < j.value:
+                    i.sp.append(j)
+                    j.np += 1
     
     r = 0
     while 1:
@@ -79,6 +81,7 @@ def nonDominatedSorting(allPopulation):
                 i.rank = r
         if len(nowRank) == 0:
             break
+        front.append([])
         front[r] = nowRank
         for i in front[r]:
             for j in i.sp:
@@ -92,15 +95,15 @@ def CalculateCrowdingDistance(front:list):
     for i in front:
         i.crowdDis = 0.0
     front.sort(key = lambda StringArt: StringArt.value)
-    front[0].crowDis = front[frontLength - 1].crowDis = 999999999999
+    front[0].crowdDis = front[frontLength - 1].crowdDis = 999999999999
 
     for i in range(1, frontLength - 1):
         # value dis
-        front[i].crowDis += float(front[i + 1].value - front[i - 1].value) / (front[frontLength - 1].value - front[0].value)
+        front[i].crowdDis += float(front[i + 1].value - front[i - 1].value) / (front[frontLength - 1].value - front[0].value) # 如果 decode 還沒寫好，這裡的分母記得+1才可以跑，不然會是0
         # num dis
         maxNum = max([m.lineNum for m in front])
         minNum = min([m.lineNum for m in front])
-        front[i].crowDis += float(abs(front[i + 1].lineNum - front[i - 1].lineNum)) / (maxNum - minNum)
+        front[i].crowdDis += float(abs(front[i + 1].lineNum - front[i - 1].lineNum)) / (maxNum - minNum)
 
 def selection(populationSize:int, front:list):
     N = 0
@@ -110,9 +113,9 @@ def selection(populationSize:int, front:list):
             N = N + len(front[i])
             if N > populationSize:
                 CalculateCrowdingDistance(front[i])
-                front.sort(key = lambda StringArt: StringArt.crowDis)
-                front.reverse()
-                for j in front:
+                front[i].sort(key = lambda StringArt: StringArt.crowdDis)
+                front[i].reverse()
+                for j in front[i]:
                     if len(nextPopulation) == populationSize:
                         break                
                     nextPopulation.append(j)              
@@ -190,7 +193,7 @@ def main():
                 newPopulation.append(child1)
                 newPopulation.append(child2)
             
-            curPopulation.append(newPopulation)
+            curPopulation.extend(newPopulation)
 
             front = nonDominatedSorting(curPopulation)
 
@@ -212,6 +215,9 @@ def main():
         end = time.time()
 
         print("experient time: ", end-start)
+        bestList.sort(key = lambda StringArt: StringArt.lineNum)
+        for i in bestList:
+            print(i.lineNum, i.value)
                 
 
 if __name__ == "__main__":
