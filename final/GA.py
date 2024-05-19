@@ -11,7 +11,7 @@ Eva = Evaluate(original_img = cv2.imread("test/photo.png"))
 class StringArt():
     def __init__(self):
         self.lineSet = set()
-        self.lineNum = random.randint(2000, 5000)
+        self.lineNum = random.randint(100, 1000)
         self.np = 0
         self.sp = []
         self.rank = -1

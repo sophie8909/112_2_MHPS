@@ -7,13 +7,15 @@ class Evaluate:
         self.mode = mode
     
     def __call__(self, population: set):
-        # try:
+        try:
             result_img = StringArtDrawer(self.original_img)
             result_img.Decode(population)
+            cv2.imshow("hi", result_img.image)
+            cv2.waitKey(1)
             return self.__evaluate(result_img.image)
-        # except Exception as e:
-        #     print(e)
-        #     return -1
+        except Exception as e:
+            print(e)
+            return -1
 
 
     def __evaluate(self, result_img: np.ndarray):
