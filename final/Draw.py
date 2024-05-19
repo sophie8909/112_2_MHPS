@@ -11,8 +11,7 @@ class StringArtDrawer:
         self.nails = [] #儲存各個釘子的x,y座標及灰階值，如[(100,200,150)]，第一個釘子的xy座標為(100,200)，其灰階值為150
         self.ori_image = self.resize(input_image)
         self.ori_image = self.tocircle(self.ori_image)
-        self.draw_image = np.zeros((PARAMETERS["image_size"], PARAMETERS["image_size"]), dtype=np.uint8)
-        self.draw_image += 255
+        
         # read config file
         self.initialize_nails()
         
@@ -36,6 +35,7 @@ class StringArtDrawer:
             self.nails.append((x, y, gray_value))
 
     def connect_nails(self, nail1, nail2): #nail1、nail2分別為兩釘子的x,y座標，將兩釘子連接成線
+        
         cv2.line(self.draw_image, nail1, nail2, (0, 0, 0), thickness=PARAMETERS["line_width"])
         # length = np.linalg.norm(np.array(nail2) - np.array(nail1))
         # angle = np.arctan2(nail2[1] - nail1[1], nail2[0] - nail1[0])
@@ -66,6 +66,8 @@ class StringArtDrawer:
 
     # decode the population to np.ndarray
     def Decode(self, population):
+        self.draw_image = np.zeros((PARAMETERS["image_size"], PARAMETERS["image_size"]), dtype=np.uint8)
+        self.draw_image += 255
         for p in population:
             nail1 = p[0]
             nail2 = p[1]

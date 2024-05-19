@@ -4,31 +4,59 @@ import copy
 import json
 import time
 import cv2
+import matplotlib.pyplot as plt
 from Evaluate import Evaluate
 from Draw import StringArtDrawer
 PARAMETERS = {}
 
-class StringArt():
-    def __init__(self):
-        self.lineSet = set()
-        self.lineNum = random.randint(PARAMETERS["init_line_min_num"], PARAMETERS["init_line_max_num"])
+class StringArt():    
+    def __init__(self, init_set):
+        
+        # parameters for nsga-ii
         self.np = 0
         self.sp = []
         self.rank = -1
         self.crowdDis = 0.0
 
-        for i in range(self.lineNum):
-            while True:
-                a = random.randint(0, PARAMETERS["num_nails"] - 2)
-                b = random.randint(a + 1, PARAMETERS["num_nails"] - 1)
-                if((a, b) not in self.lineSet):
-                    self.lineSet.add((a, b))
-                    break
-        
+        if init_set != None:
+            self.lineSet = init_set
+            self.lineNum = len(self.lineSet)                  
+        else:
+            self.lineSet = set()
+            self.lineNum = random.randint(PARAMETERS["init_line_min_num"], PARAMETERS["init_line_max_num"])
+            for i in range(self.lineNum):
+                while True:
+                    a = random.randint(0, PARAMETERS["num_nails"] - 2)
+                    b = random.randint(a + 1, PARAMETERS["num_nails"] - 1)
+                    if((a, b) not in self.lineSet):
+                        self.lineSet.add((a, b))
+                        break
+            
         self.evaluate()
 
     def evaluate(self):
         self.value = Eva(self.lineSet)
+
+    def AddLine(self):
+        while True:
+            a = random.randint(0, PARAMETERS["num_nails"] - 2)
+            b = random.randint(a + 1, PARAMETERS["num_nails"] - 1)
+            if((a, b) not in self.lineSet):
+                self.lineSet.add((a, b))
+                break
+        
+    def ChangeLine(self, line):
+        while True:
+            if random.random() <= 0.5:
+                ori_nail = line[0]
+            else:
+                ori_nail = line[1]
+
+            new_nail = random.randint(0, PARAMETERS["num_nails"] - 1)
+            if((ori_nail,new_nail) not in self.lineSet):
+                self.lineSet.add((ori_nail,new_nail))
+                break
+
 
     def mutation(self):
         decide = random.random()
@@ -39,12 +67,7 @@ class StringArt():
             else:
                 addNumber = max(int(self.lineNum * 0.1), 1)
                 for i in range(addNumber):
-                    while True:
-                        a = random.randint(0, PARAMETERS["num_nails"] - 2)
-                        b = random.randint(a + 1, PARAMETERS["num_nails"] - 1)
-                        if((a, b) not in self.lineSet):
-                            self.lineSet.add((a, b))
-                            break
+                    self.AddLine()
                 self.lineNum += addNumber
         # remove 10% lines
         if decide < 2.0 / 3.0 and self.lineNum > 1:
@@ -59,14 +82,7 @@ class StringArt():
         if decide >= 2.0 / 3.0:
             changeNumber = max(int(self.lineNum * 0.1), 1)
             for i in range(changeNumber):
-                self.lineSet.remove(random.choice(list(self.lineSet)))
-            for i in range(changeNumber):
-                while True:
-                    a = random.randint(0, PARAMETERS["num_nails"] - 2)
-                    b = random.randint(a + 1, PARAMETERS["num_nails"] - 1)
-                    if((a, b) not in self.lineSet):
-                        self.lineSet.add((a, b))
-                        break
+                self.ChangeLine(random.choice(list(self.lineSet)))
 
 def nonDominatedSorting(allPopulation:list):
     front = []
@@ -113,7 +129,7 @@ def CalculateCrowdingDistance(front:list):
         if maxNum - minNum != 0:
             front[i].crowdDis += float(abs(front[i + 1].lineNum - front[i - 1].lineNum)) / (maxNum - minNum)
 
-def selection(populationSize:int, front:list):
+def selection(populationSize:int, front:list) -> list:
     N = 0
     nextPopulation = []
     while N < populationSize:
@@ -133,13 +149,40 @@ def selection(populationSize:int, front:list):
 
     return nextPopulation
 
-def initPopulation(populationSize:int, initMethod:str):
+def InitializePopulation(populationSize:int, initMethod:str, drawer: StringArtDrawer) -> list:
+
     if initMethod == "random":
-        ret = []
+        init_population = []
         for i in range(populationSize):
-            newStringArt = StringArt()
-            ret.append(newStringArt)
-        return ret
+            newStringArt = StringArt(None)
+            init_population.append(newStringArt)
+        return init_population
+    elif initMethod == "weights_nails":
+        init_population = []
+        for i in range(populationSize):
+            # get nails
+            nails = drawer.nails
+            # get the value of each pixel 
+            nail_value =  [nail[2] for nail in nails]
+            weights = [max(255-x, 1) for x in nail_value]
+            # calculate sum
+            max_weight = sum(weights)
+            # normalize weight of each nails
+            normalized_weights = [weight / max_weight for weight in weights]
+            # select the num of line 
+            random_length = random.randint(PARAMETERS["init_line_min_num"], PARAMETERS["init_line_max_num"])
+            # random choice n group of nail become line
+            chromosome = set()
+            for i in range(random_length):
+                while True:
+                    nail1, nail2 = random.choices(nails, weights=normalized_weights, k=2)
+                    insert = (nails.index(nail1), nails.index(nail2))
+                    if insert not in chromosome:
+                        chromosome.add(insert)
+                        break
+
+            init_population.append(StringArt(chromosome))
+        return init_population
     else:
         pass
 
@@ -165,11 +208,16 @@ def crossover(parent1:StringArt, parent2:StringArt, crossoverRate:float):
         parent1.lineSet.add(twoToOne)
         parent2.lineSet.remove(twoToOne)
 
+
 def main():
+    drawer = StringArtDrawer(original_img)
+    
+
+
     for experientTimes in range(1):
 
         start = time.time()
-        curPopulation = initPopulation(PARAMETERS["num_of_populations"], PARAMETERS["init_method"])
+        curPopulation = InitializePopulation(PARAMETERS["num_of_populations"], PARAMETERS["init_method"], drawer)
         bestList = []
 
         for iteration in range(PARAMETERS["iterations"]):
@@ -206,16 +254,15 @@ def main():
             nextPopulation = selection(PARAMETERS["num_of_populations"], front)
 
             if iteration % 10 == 0:
-                for i in nextPopulation:
-                    drawer = StringArtDrawer(original_img)
+                for i in front[0]:
+                    
                     drawer.Decode(i.lineSet)
                     image = drawer.draw_image
-                    cv2.putText(image, f"{iteration}", (20, 20), cv2.FONT_HERSHEY_SIMPLEX,  1, (255, 0, 0), 1, cv2.LINE_AA)
+                    cv2.putText(image, f"{iteration}\n{i.lineNum}\n{i.value}", 
+                                org=(20, 80), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+                                fontScale=1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_AA)
                     cv2.imshow("show", image)
-                    cv2.waitKey(1)
-
-            for i in nextPopulation:
-                print(i.lineNum, i.value)
+                    cv2.waitKey(1)            
 
             if iteration == 0:
                 bestList = copy.deepcopy(nextPopulation)
@@ -227,6 +274,11 @@ def main():
                     i.rank = -1 
                 nowBestFront = nonDominatedSorting(totalList)
                 bestList = selection(PARAMETERS["num_of_populations"], nowBestFront)
+                # if iteration % 10 == 0:
+                #     xData = [x.lineNum for x in nowBestFront[0]]
+                #     yData = [y.value for y in nowBestFront[0]]
+                #     plt.scatter(xData, yData)
+                #     plt.show()
             
             curPopulation = nextPopulation
 
@@ -241,7 +293,7 @@ def main():
 if __name__ == "__main__":
     with open("config.json", "r") as f:
         PARAMETERS = json.load(f)
-    original_img = cv2.imread("test/photo.png")
+    original_img = cv2.imread("test/star.png")
     original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2GRAY)
     global Eva
     Eva = Evaluate(original_img)

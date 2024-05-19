@@ -1,17 +1,18 @@
 {
     "num_of_populations": 100,
-    "init_method": "random",
+    "init_method": "weights_nails",
     "iterations": 1000,
     "crossover_probability": 0.8,
     "mutation_probability": 0.3,
     "crossover_rate": 0.1,
     "num_nails": 288,
     "line_width": 1,
-    "init_line_min_num": 200,
-    "init_line_max_num": 2000,
-    "line_min_num": 200,
-    "line_max_num": 5000,
-    "image_size": 512,
+    "init_line_min_num": 100,
+    "init_line_max_num": 200,
+    "line_min_num": 20,
+    "line_max_num": 500,
+    "image_size": 256,
     "Dhash_size": 16,
-    "ev_mode": "mask_diff"
+    "ev_mode": "mask_diff",
+    "mask_coeff": 2
 }
