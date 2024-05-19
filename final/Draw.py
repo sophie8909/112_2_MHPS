@@ -14,6 +14,8 @@ class StringArtDrawer:
         with open(config_file, "r") as f:
             config_file = json.load(f)
             self.num_nails = config_file["num_nails"]
+            self.line_width = config_file["line_width"]
+        self.initialize_nails()
         
     
     def initialize_nails(self): #初始圖中的釘子
@@ -35,7 +37,7 @@ class StringArtDrawer:
             self.nails.append((x, y, gray_value))
 
     def connect_nails(self, nail1, nail2): #nail1、nail2分別為兩釘子的x,y座標，將兩釘子連接成線
-        cv2.line(self.image, nail1, nail2, (0, 0, 0), thickness=1)
+        cv2.line(self.image, nail1, nail2, (0, 0, 0), thickness=self.line_width)
         length = np.linalg.norm(np.array(nail2) - np.array(nail1))
         angle = np.arctan2(nail2[1] - nail1[1], nail2[0] - nail1[0])
 
@@ -46,16 +48,16 @@ class StringArtDrawer:
         start2 = (int(nail1[0] - delta_x), int(nail1[1] - delta_y))
         end2 = (int(nail2[0] - delta_x), int(nail2[1] - delta_y))
 
-        cv2.line(self.image, start1, end1, (0, 0, 0), thickness=1)
-        cv2.line(self.image, start2, end2, (0, 0, 0), thickness=1)
+        cv2.line(self.image, start1, end1, (0, 0, 0), thickness=self.line_width)
+        cv2.line(self.image, start2, end2, (0, 0, 0), thickness=self.line_width)
 
     def resize(self, image):
         return cv2.resize(image, (self.width, self.height), interpolation=cv2.INTER_AREA)
 
     def tocircle(self, input_image):
-        height, width = input_image.shape
+        height, width, _ = input_image.shape
         radius = width // 2
-        output_image = np.zeros((height, width), dtype=np.uint8) #創建一個空白的圓形圖片
+        output_image = np.zeros((height, width, 3), dtype=np.uint8) #創建一個空白的圓形圖片
 
         cv2.circle(output_image, (width // 2, height // 2), radius, (255, 255, 255), -1)
         output_image = cv2.bitwise_and(input_image, output_image)
@@ -67,4 +69,4 @@ class StringArtDrawer:
         for p in population:
             nail1 = p[0]
             nail2 = p[1]
-            self.connect_nails(nail1, nail2)
+            self.connect_nails(self.nails[nail1][:2], self.nails[nail2][:2])

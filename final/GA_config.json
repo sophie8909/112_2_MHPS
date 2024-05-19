@@ -1,7 +1,7 @@
-    {
-        "num_of_populations": 100,
-        "init_method": "random",
-        "iterations": 1,
-        "crossover_probability": 0.8,
-        "crossover_rate": 0.1
-    }
+{
+    "num_of_populations": 100,
+    "init_method": "random",
+    "iterations": 1,
+    "crossover_probability": 0.8,
+    "crossover_rate": 0.1
+}

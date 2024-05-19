@@ -6,7 +6,7 @@ import time
 import cv2
 from Evaluate import Evaluate
 PARAMETERS = {}
-Eva = Evaluate(original_img = "test/photo.png")
+Eva = Evaluate(original_img = cv2.imread("test/photo.png"))
 
 class StringArt():
     def __init__(self):
@@ -19,8 +19,8 @@ class StringArt():
 
         for i in range(self.lineNum):
             while True:
-                a = random.randint(1, 287)
-                b = random.randint(a + 1, 288)
+                a = random.randint(0, 286)
+                b = random.randint(a + 1, 287)
                 if((a, b) not in self.lineSet):
                     self.lineSet.add((a, b))
                     break
@@ -37,8 +37,8 @@ class StringArt():
             addNumber = int(self.lineNum * 0.1)
             for i in range(addNumber):
                 while True:
-                    a = random.randint(1, 287)
-                    b = random.randint(a + 1, 288)
+                    a = random.randint(0, 286)
+                    b = random.randint(a + 1, 287)
                     if((a, b) not in self.lineSet):
                         self.lineSet.add((a, b))
                         break
@@ -56,8 +56,8 @@ class StringArt():
                 self.lineSet.pop()
             for i in range(changeNumber):
                 while True:
-                    a = random.randint(1, 287)
-                    b = random.randint(a + 1, 288)
+                    a = random.randint(0, 286)
+                    b = random.randint(a + 1, 287)
                     if((a, b) not in self.lineSet):
                         self.lineSet.add((a, b))
                         break

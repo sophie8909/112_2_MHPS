@@ -7,13 +7,13 @@ class Evaluate:
         self.mode = mode
     
     def __call__(self, population: set):
-        try:
+        # try:
             result_img = StringArtDrawer(self.original_img)
             result_img.Decode(population)
-            return self.__evaluate(result_img)
-        except Exception as e:
-            print(e)
-            return -1
+            return self.__evaluate(result_img.image)
+        # except Exception as e:
+        #     print(e)
+        #     return -1
 
 
     def __evaluate(self, result_img: np.ndarray):
@@ -32,5 +32,4 @@ class Evaluate:
         result_hash = self.__dhash(result_img)
         # print(result_hash)
         diff = np.sum(original_hash != result_hash)
-        print(diff)
         return diff
