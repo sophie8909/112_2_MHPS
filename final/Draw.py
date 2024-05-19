@@ -64,4 +64,7 @@ class StringArtDrawer:
 
     # decode the population to np.ndarray
     def Decode(self, population):
-        pass
+        for p in population:
+            nail1 = p[0]
+            nail2 = p[1]
+            self.connect_nails(nail1, nail2)
