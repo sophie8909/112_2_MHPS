@@ -8,7 +8,8 @@ class Evaluate:
     
     def __call__(self, population: set):
         try:
-            result_img = StringArtDrawer.Decode(population)
+            result_img = StringArtDrawer(self.original_img)
+            result_img = result_img.Decode(population)
             return self.__evaluate(result_img)
         except Exception as e:
             print(e)
