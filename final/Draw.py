@@ -8,8 +8,9 @@ class StringArtDrawer:
         self.nails = [] #儲存各個釘子的x,y座標及灰階值，如[(100,200,150)]，第一個釘子的xy座標為(100,200)，其灰階值為150
         self.width = width
         self.height = height
-        self.image = self.resize(input_image)
-        self.image = self.tocircle(self.image)
+        self.ori_image = self.resize(input_image)
+        self.ori_image = self.tocircle(self.ori_image)
+        self.draw_image = np.zeros((height, width, 3), dtype=np.uint8)
         # read config file
         with open(config_file, "r") as f:
             config_file = json.load(f)
@@ -19,7 +20,7 @@ class StringArtDrawer:
         
     
     def initialize_nails(self): #初始圖中的釘子
-        image = self.image
+        image = self.ori_image
         height, width = image.shape[:2]
         center = (width // 2, height // 2)  
         radius = min(width, height) // 2 - 1
@@ -37,7 +38,7 @@ class StringArtDrawer:
             self.nails.append((x, y, gray_value))
 
     def connect_nails(self, nail1, nail2): #nail1、nail2分別為兩釘子的x,y座標，將兩釘子連接成線
-        cv2.line(self.image, nail1, nail2, (0, 0, 0), thickness=self.line_width)
+        cv2.line(self.draw_image, nail1, nail2, (0, 0, 0), thickness=self.line_width)
         length = np.linalg.norm(np.array(nail2) - np.array(nail1))
         angle = np.arctan2(nail2[1] - nail1[1], nail2[0] - nail1[0])
 
@@ -48,8 +49,8 @@ class StringArtDrawer:
         start2 = (int(nail1[0] - delta_x), int(nail1[1] - delta_y))
         end2 = (int(nail2[0] - delta_x), int(nail2[1] - delta_y))
 
-        cv2.line(self.image, start1, end1, (0, 0, 0), thickness=self.line_width)
-        cv2.line(self.image, start2, end2, (0, 0, 0), thickness=self.line_width)
+        cv2.line(self.draw_image, start1, end1, (0, 0, 0), thickness=self.line_width)
+        cv2.line(self.draw_image, start2, end2, (0, 0, 0), thickness=self.line_width)
 
     def resize(self, image):
         return cv2.resize(image, (self.width, self.height), interpolation=cv2.INTER_AREA)
