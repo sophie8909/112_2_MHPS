@@ -13,4 +13,6 @@ for img in test_img:
     # initialize the Evaluate class with the original image
     ev = Evaluate(photo)
     # evaluate the result image using DHash
-    ev(result)
+    value = ev.evaluate(result)
+    print(value)
+    

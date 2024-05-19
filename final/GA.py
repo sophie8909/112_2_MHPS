@@ -5,13 +5,13 @@ import json
 import time
 import cv2
 from Evaluate import Evaluate
+from Draw import StringArtDrawer
 PARAMETERS = {}
-Eva = Evaluate(original_img = cv2.imread("test/photo.png"))
 
 class StringArt():
     def __init__(self):
         self.lineSet = set()
-        self.lineNum = random.randint(100, 1000)
+        self.lineNum = random.randint(PARAMETERS["init_line_min_num"], PARAMETERS["init_line_max_num"])
         self.np = 0
         self.sp = []
         self.rank = -1
@@ -19,8 +19,8 @@ class StringArt():
 
         for i in range(self.lineNum):
             while True:
-                a = random.randint(0, 286)
-                b = random.randint(a + 1, 287)
+                a = random.randint(0, PARAMETERS["num_nails"] - 2)
+                b = random.randint(a + 1, PARAMETERS["num_nails"] - 1)
                 if((a, b) not in self.lineSet):
                     self.lineSet.add((a, b))
                     break
@@ -34,30 +34,36 @@ class StringArt():
         decide = random.random()
         # add 10% lines
         if decide < 1.0 / 3.0:
-            addNumber = int(self.lineNum * 0.1)
-            for i in range(addNumber):
-                while True:
-                    a = random.randint(0, 286)
-                    b = random.randint(a + 1, 287)
-                    if((a, b) not in self.lineSet):
-                        self.lineSet.add((a, b))
-                        break
-            self.lineNum += addNumber
+            if self.lineNum * 1.1 > PARAMETERS["line_max_num"]:
+                decide += 1.0 / 3.0
+            else:
+                addNumber = max(int(self.lineNum * 0.1), 1)
+                for i in range(addNumber):
+                    while True:
+                        a = random.randint(0, PARAMETERS["num_nails"] - 2)
+                        b = random.randint(a + 1, PARAMETERS["num_nails"] - 1)
+                        if((a, b) not in self.lineSet):
+                            self.lineSet.add((a, b))
+                            break
+                self.lineNum += addNumber
         # remove 10% lines
-        elif decide < 2.0 / 3.0:
-            deleteNumber = int(self.lineNum * 0.1)
-            for i in range(deleteNumber):
-                self.lineSet.pop()
-            self.lineNum -= deleteNumber
+        if decide < 2.0 / 3.0 and self.lineNum > 1:
+            if self.lineNum * 0.9 < PARAMETERS["line_min_num"]:
+                decide += 1.0 / 3.0
+            else:
+                deleteNumber = max(int(self.lineNum * 0.1), 1)
+                for i in range(deleteNumber):
+                    self.lineSet.remove(random.choice(list(self.lineSet)))
+                self.lineNum -= deleteNumber
         #change 10% lines
-        else:
-            changeNumber = int(self.lineNum * 0.1)
+        if decide >= 2.0 / 3.0:
+            changeNumber = max(int(self.lineNum * 0.1), 1)
             for i in range(changeNumber):
-                self.lineSet.pop()
+                self.lineSet.remove(random.choice(list(self.lineSet)))
             for i in range(changeNumber):
                 while True:
-                    a = random.randint(0, 286)
-                    b = random.randint(a + 1, 287)
+                    a = random.randint(0, PARAMETERS["num_nails"] - 2)
+                    b = random.randint(a + 1, PARAMETERS["num_nails"] - 1)
                     if((a, b) not in self.lineSet):
                         self.lineSet.add((a, b))
                         break
@@ -99,11 +105,13 @@ def CalculateCrowdingDistance(front:list):
 
     for i in range(1, frontLength - 1):
         # value dis
-        front[i].crowdDis += float(front[i + 1].value - front[i - 1].value) / (front[frontLength - 1].value - front[0].value) # 如果 decode 還沒寫好，這裡的分母記得+1才可以跑，不然會是0
+        if front[frontLength - 1].value - front[0].value != 0:
+            front[i].crowdDis += float(front[i + 1].value - front[i - 1].value) / (front[frontLength - 1].value - front[0].value) # 如果 decode 還沒寫好，這裡的分母記得+1才可以跑，不然會是0
         # num dis
         maxNum = max([m.lineNum for m in front])
         minNum = min([m.lineNum for m in front])
-        front[i].crowdDis += float(abs(front[i + 1].lineNum - front[i - 1].lineNum)) / (maxNum - minNum)
+        if maxNum - minNum != 0:
+            front[i].crowdDis += float(abs(front[i + 1].lineNum - front[i - 1].lineNum)) / (maxNum - minNum)
 
 def selection(populationSize:int, front:list):
     N = 0
@@ -158,9 +166,6 @@ def crossover(parent1:StringArt, parent2:StringArt, crossoverRate:float):
         parent2.lineSet.remove(twoToOne)
 
 def main():
-    with open("GA_config.json", "r") as f:
-        PARAMETERS = json.load(f)
-
     for experientTimes in range(1):
 
         start = time.time()
@@ -184,20 +189,33 @@ def main():
 
                 if epsilon <= PARAMETERS["crossover_probability"]:
                     crossover(child1, child2, PARAMETERS["crossover_rate"])
-                else:
-                    child1.mutation()
-                    child2.mutation()
 
                 child1.evaluate()
                 child2.evaluate()
                 newPopulation.append(child1)
                 newPopulation.append(child2)
             
+            for pop in newPopulation:
+                if random.random() <= PARAMETERS["mutation_probability"]:
+                    pop.mutation()
+            
             curPopulation.extend(newPopulation)
-
+            
             front = nonDominatedSorting(curPopulation)
 
             nextPopulation = selection(PARAMETERS["num_of_populations"], front)
+
+            if iteration % 10 == 0:
+                for i in nextPopulation:
+                    drawer = StringArtDrawer(original_img)
+                    drawer.Decode(i.lineSet)
+                    image = drawer.draw_image
+                    cv2.putText(image, f"{iteration}", (20, 20), cv2.FONT_HERSHEY_SIMPLEX,  1, (255, 0, 0), 1, cv2.LINE_AA)
+                    cv2.imshow("show", image)
+                    cv2.waitKey(1)
+
+            for i in nextPopulation:
+                print(i.lineNum, i.value)
 
             if iteration == 0:
                 bestList = copy.deepcopy(nextPopulation)
@@ -221,4 +239,10 @@ def main():
                 
 
 if __name__ == "__main__":
+    with open("config.json", "r") as f:
+        PARAMETERS = json.load(f)
+    original_img = cv2.imread("test/photo.png")
+    original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2GRAY)
+    global Eva
+    Eva = Evaluate(original_img)
     main()
