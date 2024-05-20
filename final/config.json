@@ -13,6 +13,8 @@
     "line_max_num": 4000,
     "image_size": 1000,
     "Dhash_size": 16,
-    "ev_mode": "one_pixel_diff",
+    "ev_mode": "MSE",
+    "ev_mask": true,
+    "line_width_ev": 5,
     "mask_coeff": 2
 }
