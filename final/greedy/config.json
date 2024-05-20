@@ -1,0 +1,18 @@
+{
+    "num_of_populations": 3,
+    "iterations": 100,
+    "crossover_probability": 0.8,
+    "mutation_probability": 0.2,
+    "num_nails": 288,
+    "line_width_min": 1,
+    "line_width_max": 10,
+    "line_min_num": 20,
+    "line_max_num": 3000,
+    "pins_min_num": 100,
+    "pins_max_num": 500,
+    "image_size": 1001,
+    "ev_mode": "MSE",
+    "ev_mask": false,
+    "line_width_ev": 5,
+    "mask_coeff": 2
+}
