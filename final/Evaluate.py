@@ -92,5 +92,5 @@ class Mask:
         cv2.imshow('Image', binary_image)
 
         # 等待用户按键并关闭所有窗口
-        cv2.waitKey(0)
+        cv2.waitKey(10)
         cv2.destroyAllWindows()

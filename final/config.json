@@ -7,12 +7,12 @@
     "crossover_rate": 0.1,
     "num_nails": 288,
     "line_width": 1,
-    "init_line_min_num": 100,
-    "init_line_max_num": 200,
+    "init_line_min_num": 500,
+    "init_line_max_num": 2000,
     "line_min_num": 20,
-    "line_max_num": 500,
-    "image_size": 256,
+    "line_max_num": 4000,
+    "image_size": 1000,
     "Dhash_size": 16,
-    "ev_mode": "mask_diff",
+    "ev_mode": "one_pixel_diff",
     "mask_coeff": 2
 }

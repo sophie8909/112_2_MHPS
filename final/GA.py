@@ -11,12 +11,6 @@ PARAMETERS = {}
 
 class StringArt():    
     def __init__(self, init_set):
-        
-        # parameters for nsga-ii
-        self.np = 0
-        self.sp = []
-        self.rank = -1
-        self.crowdDis = 0.0
 
         if init_set != None:
             self.lineSet = init_set
@@ -85,70 +79,25 @@ class StringArt():
             for i in range(changeNumber):
                 self.ChangeLine(random.choice(list(self.lineSet)))
 
-def nonDominatedSorting(allPopulation:list):
-    front = []
-
-    for i in allPopulation:
-        for j in allPopulation:
-            if i != j:
-                if i.lineNum < j.lineNum and i.value < j.value:
-                    i.sp.append(j)
-                    j.np += 1
+def selection(populationSize:int, curPopulation:list) -> list:
+    curPopulation.sort(key = lambda StringArt: StringArt.value)
+    newPopulation = []
+    seenSets = set()
+    for pop in curPopulation:
+        setTuple = tuple(sorted(pop.lineSet))
+        if setTuple not in seenSets:
+            newPopulation.append(pop)
+            seenSets.add(setTuple)
     
-    r = 0
-    while 1:
-        nowRank = []
-        for i in allPopulation:
-            if i.np == 0 and i.rank == -1:
-                nowRank.append(i)
-                i.rank = r
-        if len(nowRank) == 0:
-            break
-        front.append([])
-        front[r] = nowRank
-        for i in front[r]:
-            for j in i.sp:
-                j.np -= 1
-        r += 1
+    need = populationSize - len(newPopulation)
 
-    return front
+    for i in range(need):
+        add = copy.deepcopy(random.choice(curPopulation))
+        newPopulation.append(add)
+    
+    newPopulation = newPopulation[:populationSize]
 
-def CalculateCrowdingDistance(front:list):
-    frontLength = len(front)
-    for i in front:
-        i.crowdDis = 0.0
-    front.sort(key = lambda StringArt: StringArt.value)
-    front[0].crowdDis = front[frontLength - 1].crowdDis = 999999999999
-
-    for i in range(1, frontLength - 1):
-        # value dis
-        if front[frontLength - 1].value - front[0].value != 0:
-            front[i].crowdDis += float(front[i + 1].value - front[i - 1].value) / (front[frontLength - 1].value - front[0].value) # 如果 decode 還沒寫好，這裡的分母記得+1才可以跑，不然會是0
-        # num dis
-        maxNum = max([m.lineNum for m in front])
-        minNum = min([m.lineNum for m in front])
-        if maxNum - minNum != 0:
-            front[i].crowdDis += float(abs(front[i + 1].lineNum - front[i - 1].lineNum)) / (maxNum - minNum)
-
-def selection(populationSize:int, front:list) -> list:
-    N = 0
-    nextPopulation = []
-    while N < populationSize:
-        for i in range(len(front)):
-            N = N + len(front[i])
-            if N > populationSize:
-                CalculateCrowdingDistance(front[i])
-                front[i].sort(key = lambda StringArt: StringArt.crowdDis)
-                front[i].reverse()
-                for j in front[i]:
-                    if len(nextPopulation) == populationSize:
-                        break                
-                    nextPopulation.append(j)              
-                break
-            else:
-                nextPopulation.extend(front[i])
-
-    return nextPopulation
+    return newPopulation
 
 def InitializePopulation(populationSize:int, initMethod:str, drawer: StringArtDrawer) -> list:
 
@@ -212,8 +161,6 @@ def crossover(parent1:StringArt, parent2:StringArt, crossoverRate:float):
 
 def main():
     drawer = StringArtDrawer(original_img)
-    
-
 
     for experientTimes in range(1):
 
@@ -222,11 +169,6 @@ def main():
         bestList = []
 
         for iteration in range(PARAMETERS["iterations"]):
-
-            for i in curPopulation:
-                i.np = 0
-                i.sp = []
-                i.rank = -1            
             
             newPopulation = []
 
@@ -250,18 +192,14 @@ def main():
             
             curPopulation.extend(newPopulation)
             
-            front = nonDominatedSorting(curPopulation)
+            nextPopulation = selection(PARAMETERS["num_of_populations"], curPopulation)
 
-            nextPopulation = selection(PARAMETERS["num_of_populations"], front)
-
-            if iteration % 10 == 0:
-                for i in front[0]:
-                    
-                    drawer.Decode(i.lineSet)
+            if iteration % 50 == 0:
+                for j in range(PARAMETERS["num_of_populations"]):
+                    i = 99-j
+                    drawer.Decode(nextPopulation[i].lineSet)
                     image = drawer.draw_image
-                    cv2.putText(image, f"{iteration}\n{i.lineNum}\n{i.value}", 
-                                org=(20, 80), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
-                                fontScale=1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_AA)
+                    cv2.putText(image, f"{iteration}|{nextPopulation[i].lineNum}|{nextPopulation[i].value}", (20, 60), cv2.FONT_HERSHEY_SIMPLEX,  1, (0, 5, 255), 2, cv2.LINE_AA)
                     cv2.imshow("show", image)
                     cv2.waitKey(1)            
 
@@ -269,12 +207,8 @@ def main():
                 bestList = copy.deepcopy(nextPopulation)
             else:
                 totalList = copy.deepcopy(nextPopulation) + copy.deepcopy(bestList)
-                for i in totalList:
-                    i.np = 0
-                    i.sp = []
-                    i.rank = -1 
-                nowBestFront = nonDominatedSorting(totalList)
-                bestList = selection(PARAMETERS["num_of_populations"], nowBestFront)
+                totalList.sort(key = lambda StringArt: StringArt.value)
+                bestList = totalList[:PARAMETERS["num_of_populations"]]
                 # if iteration % 10 == 0:
                 #     xData = [x.lineNum for x in nowBestFront[0]]
                 #     yData = [y.value for y in nowBestFront[0]]
@@ -294,7 +228,7 @@ def main():
 if __name__ == "__main__":
     with open("config.json", "r") as f:
         PARAMETERS = json.load(f)
-    original_img = cv2.imread("test/star.png")
+    original_img = cv2.imread("test/one_line.png")
     original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2GRAY)
     global Eva
     Eva = Evaluate(original_img)
