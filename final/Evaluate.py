@@ -2,8 +2,13 @@ import numpy as np
 import cv2
 from Draw import StringArtDrawer
 import json
+### for perceptual loss ###
+# from PerceptualLoss import PerceptualLoss 
+# import torchvision.transforms as transforms
+# import torch
+# import gc
 
-
+from skimage.metrics import structural_similarity
 
 class Evaluate:
     def __init__(self, original_img, config_file = "config.json"):
@@ -15,6 +20,9 @@ class Evaluate:
         self.original_img = cv2.resize(self.original_img, (PARAMETERS["image_size"], PARAMETERS["image_size"]))
         self.mask = Mask()
         self.mask.auto_gen_mask(self.original_img)
+        if PARAMETERS["ev_mode"] == "perceptual_loss":
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            self.loss = PerceptualLoss().to(self.device)
         
     
     def __call__(self, population: set):
@@ -35,6 +43,10 @@ class Evaluate:
             return self.one_pixel_diff(result_img)
         elif PARAMETERS["ev_mode"] == "mask_diff":
             return self.mask_diff(result_img)
+        elif PARAMETERS["ev_mode"] == "perceptual_loss":
+            return self.perceptual_loss(result_img)
+        elif PARAMETERS["ev_mode"] == "SSIM":
+            return self.SSIM(result_img)
         else:
             print("no match evaluate mode")
 
@@ -65,7 +77,45 @@ class Evaluate:
         # print(diff)
         diff = np.sum(diff)
         return diff
+    @staticmethod
+    def numpy_to_tensor(np_array):
+        # Check if the input is a numpy array
+        if isinstance(np_array, np.ndarray):
+            if np_array.ndim == 2:  # Single channel image
+                np_array = np.expand_dims(np_array, axis=2)  # Add channel dimension
+            if np_array.shape[2] == 1:  # If single channel, convert to 3-channel
+                np_array = np.repeat(np_array, 3, axis=2)
+            tensor = torch.from_numpy(np_array).float()  # Convert to float
+            if tensor.ndim == 3:  # Add batch dimension if necessary
+                tensor = tensor.unsqueeze(0)
+            if tensor.ndim == 4:  # Change shape from (batch, height, width, channels) to (batch, channels, height, width)
+                tensor = tensor.permute(0, 3, 1, 2)
+            
+            # Normalize tensor
+            normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            tensor = normalize(tensor / 255.0)  # Normalize to [0, 1] range
+            return tensor
+        else:
+            raise ValueError("Input should be a numpy array.")
+
     
+    # def perceptual_loss(self, result_img):
+    #     torch.cuda.empty_cache()
+    #     gc.collect()
+    #     ori = self.numpy_to_tensor(self.original_img).to(self.device)
+    #     result = self.numpy_to_tensor(result_img).to(self.device)
+    #     loss = self.loss(ori, result)
+    #     torch.cuda.empty_cache()
+    #     gc.collect()
+    #     # print(loss)
+    #     return loss
+
+    def SSIM(self, result_img):
+        # calculate the SSIM between the original image and the result image
+        ssim = structural_similarity(self.original_img, result_img, multichannel=True)
+        return ssim
+
+        
 
 class Mask:
     def __init__(self):
