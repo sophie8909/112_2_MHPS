@@ -66,8 +66,6 @@ class Evaluate:
         # calculate the difference between the original image and the result image
         diff = np.mean((ori_img - result_img) ** 2)
         return diff
-    
-
 
     def mask_diff(self, ori_img, result_img):
         diff = (np.abs(ori_img - result_img) ** 2) * self.mask.mask

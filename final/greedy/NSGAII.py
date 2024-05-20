@@ -51,7 +51,7 @@ class StringArtParameter():
         if decide < 1.0 / 3.0:
             self.lineNum = random.randint(PARAMETERS["line_min_num"], PARAMETERS["line_max_num"])
         # change lineWidth
-        elif decide < 2.0 / 3.0 and self.lineNum > 1:
+        elif decide < 2.0 / 3.0:
             self.lineWidth = random.randint(PARAMETERS["line_width_min"], PARAMETERS["line_width_max"])
         # change pinNum
         else:
@@ -134,9 +134,9 @@ def InitializePopulation(populationSize:int) -> list:
     return init_population
 
 def main():
+    
+    start = time.time()
     for experientTimes in range(1):
-
-        start = time.time()
         curPopulation = InitializePopulation(PARAMETERS["num_of_populations"])
         bestList = []
 
@@ -169,16 +169,7 @@ def main():
             front = nonDominatedSorting(curPopulation)
 
             nextPopulation = selection(PARAMETERS["num_of_populations"], front)
-
-            if iteration % 1 == 0:
-                for i in front[0]:
-                    image = i.image
-                    cv2.putText(image, f"{iteration}|{i.lineNum}|{i.value}", 
-                                org=(20, 80), fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
-                                fontScale=1, color=(0, 0, 255), thickness=1, lineType=cv2.LINE_AA)
-                    cv2.imshow("show", image)
-                    cv2.waitKey(1)            
-
+         
             if iteration == 0:
                 bestList = copy.deepcopy(nextPopulation)
             else:
@@ -189,27 +180,30 @@ def main():
                     i.rank = -1 
                 nowBestFront = nonDominatedSorting(totalList)
                 bestList = selection(PARAMETERS["num_of_populations"], nowBestFront)
-                if iteration % 1 == 0:
-                    xData = [x.lineNum for x in nowBestFront[0]]
-                    yData = [y.value for y in nowBestFront[0]]
-                    plt.scatter(xData, yData)
-                    plt.show()
+                # if iteration % 1 == 0:
+                #     xData = [x.lineNum for x in nowBestFront[0]]
+                #     yData = [y.value for y in nowBestFront[0]]
+                #     plt.scatter(xData, yData)
+                #     plt.show()
             
             curPopulation = nextPopulation
 
-        end = time.time()
+        bestList.sort(key = lambda StringArtParameter: StringArtParameter.value)
 
-        print("experient time: ", end-start)
-        bestList.sort(key = lambda StringArtParameter: StringArtParameter.lineNum)
-        for i in bestList:
-            print(i.lineNum, i.value)
+        with open(f"experient_{experientTimes + 1}_result.txt", "w+") as f:
+            for i in bestList:
+                f.write(f"{i.pinNum} {i.lineNum} {i.lineWidth} {i.value}\n")            
+    
+    end = time.time()
+    with open("experient_total_time.txt", "w+") as f:
+        f.write(f"{end - start}")
                 
 
 if __name__ == "__main__":
     with open("config.json", "r") as f:
         PARAMETERS = json.load(f)
     global imgPath, Eva, allVisitedParameter
-    imgPath = "test/star.png"
+    imgPath = "test/photo.png"
     original_img = cv2.imread(imgPath)
     original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2GRAY)
     Eva = Evaluate(original_img)
