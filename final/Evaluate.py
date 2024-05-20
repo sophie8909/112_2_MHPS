@@ -18,23 +18,24 @@ class Evaluate:
 
         self.original_img = original_img
         self.original_img = cv2.resize(self.original_img, (PARAMETERS["image_size"], PARAMETERS["image_size"]))
-        self.mask = Mask()
-        self.mask.auto_gen_mask(self.original_img)
-        if PARAMETERS["ev_mode"] == "perceptual_loss":
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            self.loss = PerceptualLoss().to(self.device)
+        self.drawer = StringArtDrawer(self.original_img)
+        if PARAMETERS["ev_mode"] == "mask_diff":
+            self.mask = Mask()
+            self.mask.auto_gen_mask(self.original_img)
+        # if PARAMETERS["ev_mode"] == "perceptual_loss":
+        #     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        #     self.loss = PerceptualLoss().to(self.device)
         
     
     def __call__(self, population: set):
-        result_img = StringArtDrawer(self.original_img)
-        result_img.Decode(population)
+        self.drawer.Decode(population)
         if PARAMETERS["ev_mask"] == True:
             ori_mask = StringArtDrawer(self.original_img)
             ori_mask.Erase_ev(population)
             ori = ori_mask.ori_image
         else:
             ori = self.original_img
-        return self.__evaluate(ori, result_img.draw_image)
+        return self.__evaluate(ori, self.drawer.draw_image)
 
 
     def __evaluate(self, ori_img: np.ndarray, result_img: np.ndarray):
@@ -51,6 +52,11 @@ class Evaluate:
             return self.SSIM(ori_img, result_img)
         else:
             print("no match evaluate mode")
+
+    def line_value(self, line):
+        self.drawer.Decode([line])
+        return self.__evaluate(self.original_img, self.drawer.draw_image)
+
 
     def __dhash(self, img):
         # calculate the difference hash of the image

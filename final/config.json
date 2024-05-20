@@ -1,7 +1,7 @@
 {
     "num_of_populations": 100,
     "init_method": "weights_nails",
-    "iterations": 1000,
+    "iterations": 100,
     "crossover_probability": 0.8,
     "mutation_probability": 0.3,
     "crossover_rate": 0.1,
@@ -15,6 +15,7 @@
     "Dhash_size": 16,
     "ev_mode": "MSE",
     "ev_mask": true,
+    "ev_line": true,
     "line_width_ev": 5,
     "mask_coeff": 2
 }
