@@ -11,6 +11,7 @@ class StringArtDrawer:
         self.nails = [] #儲存各個釘子的x,y座標及灰階值，如[(100,200,150)]，第一個釘子的xy座標為(100,200)，其灰階值為150
         self.ori_image = self.resize(input_image)
         self.ori_image = self.tocircle(self.ori_image)
+
         
         # read config file
         self.initialize_nails()
@@ -34,22 +35,11 @@ class StringArtDrawer:
 
             self.nails.append((x, y, gray_value))
 
-    def connect_nails(self, nail1, nail2): #nail1、nail2分別為兩釘子的x,y座標，將兩釘子連接成線
+    def connect_nails(self, img, nail1, nail2, color, thickness): #nail1、nail2分別為兩釘子的x,y座標，將兩釘子連接成線
+        nail1 = self.nails[nail1][:2]
+        nail2 = self.nails[nail2][:2]
+        cv2.line(img, nail1, nail2, color, thickness=thickness)
         
-        cv2.line(self.draw_image, nail1, nail2, (0, 0, 0), thickness=PARAMETERS["line_width"])
-        # length = np.linalg.norm(np.array(nail2) - np.array(nail1))
-        # angle = np.arctan2(nail2[1] - nail1[1], nail2[0] - nail1[0])
-
-        # delta_x = 0.5 * np.sin(angle + np.pi/2)
-        # delta_y = 0.5 * np.cos(angle + np.pi/2)
-        # start1 = (int(nail1[0] + delta_x), int(nail1[1] + delta_y))
-        # end1 = (int(nail2[0] + delta_x), int(nail2[1] + delta_y))
-        # start2 = (int(nail1[0] - delta_x), int(nail1[1] - delta_y))
-        # end2 = (int(nail2[0] - delta_x), int(nail2[1] - delta_y))
-
-        # cv2.line(self.draw_image, start1, end1, (0, 0, 0), thickness=self.line_width)
-        # cv2.line(self.draw_image, start2, end2, (0, 0, 0), thickness=self.line_width)
-
     def resize(self, image):
         return cv2.resize(image, (PARAMETERS["image_size"], PARAMETERS["image_size"]), interpolation=cv2.INTER_AREA)
 
@@ -68,7 +58,9 @@ class StringArtDrawer:
     def Decode(self, population):
         self.draw_image = np.zeros((PARAMETERS["image_size"], PARAMETERS["image_size"]), dtype=np.uint8)
         self.draw_image += 255
-        for p in population:
-            nail1 = p[0]
-            nail2 = p[1]
-            self.connect_nails(self.nails[nail1][:2], self.nails[nail2][:2])
+        for (nail1, nail2) in population:
+            self.connect_nails(self.draw_image, nail1, nail2,  (0, 0, 0), PARAMETERS["line_width"])
+
+    def Erase_ev(self, population):
+        for (nail1, nail2) in population:
+            self.connect_nails(self.ori_image, nail1, nail2, (255, 255, 255), PARAMETERS["line_width_ev"])    

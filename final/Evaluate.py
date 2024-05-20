@@ -26,27 +26,29 @@ class Evaluate:
         
     
     def __call__(self, population: set):
-        # try:
-            result_img = StringArtDrawer(self.original_img)
-            result_img.Decode(population)
-            return self.__evaluate(result_img.draw_image)
-        # except Exception as e:
-        #     print(e)
-        #     return -1
+        result_img = StringArtDrawer(self.original_img)
+        result_img.Decode(population)
+        if PARAMETERS["ev_mask"] == True:
+            ori_mask = StringArtDrawer(self.original_img)
+            ori_mask.Erase_ev(population)
+            ori = ori_mask.ori_image
+        else:
+            ori = self.original_img
+        return self.__evaluate(ori, result_img.draw_image)
 
 
-    def __evaluate(self, result_img: np.ndarray):
+    def __evaluate(self, ori_img: np.ndarray, result_img: np.ndarray):
         
         if PARAMETERS["ev_mode"] == "DHash":
-            return self.DHash(result_img)
-        elif PARAMETERS["ev_mode"] == "one_pixel_diff":
-            return self.one_pixel_diff(result_img)
+            return self.DHash(ori_img, result_img)
+        elif PARAMETERS["ev_mode"] == "MSE":
+            return self.MSE(ori_img, result_img)
         elif PARAMETERS["ev_mode"] == "mask_diff":
-            return self.mask_diff(result_img)
+            return self.mask_diff(ori_img, result_img)
         elif PARAMETERS["ev_mode"] == "perceptual_loss":
-            return self.perceptual_loss(result_img)
+            return self.perceptual_loss(ori_img, result_img)
         elif PARAMETERS["ev_mode"] == "SSIM":
-            return self.SSIM(result_img)
+            return self.SSIM(ori_img, result_img)
         else:
             print("no match evaluate mode")
 
@@ -57,23 +59,23 @@ class Evaluate:
         diff = img[:, 1:] > img[:, :-1]
         return diff.flatten()
 
-    def DHash(self, result_img):
-        original_hash = self.__dhash(self.original_img)
+    def DHash(self, ori_img, result_img):
+        original_hash = self.__dhash(ori_img)
         # print(original_hash)
         result_hash = self.__dhash(result_img)
         # print(result_hash)
         diff = np.sum(original_hash != result_hash)
         return diff
     
-    def one_pixel_diff(self, result_img):
+    def MSE(self, ori_img, result_img):
         # calculate the difference between the original image and the result image
-        diff = np.sum(np.abs(self.original_img - result_img))
+        diff = np.sum(np.abs(ori_img - result_img) **2)
         return diff
     
 
 
-    def mask_diff(self, result_img):
-        diff = (np.abs(self.original_img - result_img) ** 2) * self.mask.mask
+    def mask_diff(self, ori_img, result_img):
+        diff = (np.abs(ori_img - result_img) ** 2) * self.mask.mask
         # print(diff)
         diff = np.sum(diff)
         return diff
@@ -110,9 +112,9 @@ class Evaluate:
     #     # print(loss)
     #     return loss
 
-    def SSIM(self, result_img):
+    def SSIM(self, ori_img, result_img):
         # calculate the SSIM between the original image and the result image
-        ssim = structural_similarity(self.original_img, result_img, multichannel=True)
+        ssim = structural_similarity(ori_img, result_img, multichannel=True)
         return ssim
 
         
