@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from Draw import StringArtDrawer 
-import GA
+import final.NSGAII as NSGAII
 from Evaluate import Evaluate 
 
 import random
