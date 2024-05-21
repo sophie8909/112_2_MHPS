@@ -200,7 +200,7 @@ if __name__ == "__main__":
     with open("config.json", "r") as f:
         PARAMETERS = json.load(f)
     global imgPath, Eva, allVisitedParameter
-    imgPath = "test/Lenna.jpg"
+    imgPath = "test/Einstein_1.jpg"
     original_img = cv2.imread(imgPath)
     original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2GRAY)
     Eva = Evaluate(original_img)
