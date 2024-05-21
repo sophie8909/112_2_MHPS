@@ -18,17 +18,17 @@ class Evaluate:
 
         self.original_img = original_img
         self.original_img = cv2.resize(self.original_img, (PARAMETERS["image_size"], PARAMETERS["image_size"]))
-        self.mask = Mask()
-        self.mask.auto_gen_mask(self.original_img)
+        # self.mask = Mask()
+        # self.mask.auto_gen_mask(self.original_img)
         
     
     def __call__(self, result_img):
-        if PARAMETERS["ev_mask"] == True:
-            ori_mask = StringArtDrawer(self.original_img)
-            ori_mask.Erase_ev(population)
-            ori = ori_mask.ori_image
-        else:
-            ori = self.original_img
+        # if PARAMETERS["ev_mask"] == True:
+        #     ori_mask = StringArtDrawer(self.original_img)
+        #     ori_mask.Erase_ev(population)
+        #     ori = ori_mask.ori_image
+        # else:
+        ori = self.original_img
         return self.__evaluate(ori, result_img)
 
 
