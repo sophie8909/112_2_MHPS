@@ -31,8 +31,6 @@ class StringArtParameter():
         self.lineNum = (self.lineNum + parent2.lineNum) // 2
         self.lineWidth = (self.lineWidth + parent2.lineWidth) // 2
 
-        self.evaluate()
-
     def evaluate(self):
         global allVisitedParameter, imgPath
         
@@ -56,8 +54,6 @@ class StringArtParameter():
         # change pinNum
         else:
             self.pinNum = random.randint(PARAMETERS["pins_min_num"], PARAMETERS["pins_max_num"])
-        
-        self.evaluate()
             
 
 def nonDominatedSorting(allPopulation:list):
@@ -163,6 +159,7 @@ def main():
             for pop in newPopulation:
                 if random.random() <= PARAMETERS["mutation_probability"]:
                     pop.mutation()
+                pop.evaluate()
             
             curPopulation.extend(newPopulation)
             
@@ -203,7 +200,7 @@ if __name__ == "__main__":
     with open("config.json", "r") as f:
         PARAMETERS = json.load(f)
     global imgPath, Eva, allVisitedParameter
-    imgPath = "test/photo.png"
+    imgPath = "test/Lenna.jpg"
     original_img = cv2.imread(imgPath)
     original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2GRAY)
     Eva = Evaluate(original_img)

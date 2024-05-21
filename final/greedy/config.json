@@ -10,8 +10,5 @@
     "pins_min_num": 100,
     "pins_max_num": 400,
     "image_size": 1001,
-    "ev_mode": "MSE",
-    "ev_mask": false,
-    "line_width_ev": 5,
-    "mask_coeff": 2
+    "ev_mode": "MSE"
 }
